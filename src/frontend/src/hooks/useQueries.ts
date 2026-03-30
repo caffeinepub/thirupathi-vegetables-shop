@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   CustomerOrder,
   OrderItem,
-  OrderStatus,
   Product,
+  Variant_pending_confirmed,
 } from "../backend.d";
 import { useActor } from "./useActor";
 
@@ -31,6 +31,18 @@ export function useGetAllOrders() {
   });
 }
 
+export function useIsAdmin() {
+  const { actor, isFetching } = useActor();
+  return useQuery<boolean>({
+    queryKey: ["isAdmin"],
+    queryFn: async () => {
+      if (!actor) return false;
+      return actor.isCurrentUserAdmin();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
 export function usePlaceOrder() {
   const { actor } = useActor();
   return useMutation<
@@ -53,7 +65,11 @@ export function usePlaceOrder() {
 export function useUpdateOrderStatus() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
-  return useMutation<void, Error, { id: bigint; status: OrderStatus }>({
+  return useMutation<
+    void,
+    Error,
+    { id: bigint; status: Variant_pending_confirmed }
+  >({
     mutationFn: async ({ id, status }) => {
       if (!actor) throw new Error("Not connected");
       return actor.updateOrderStatus(id, status);

@@ -1,41 +1,30 @@
-# Thirupathi Vegetables and Fruits Shop
+# Thirupathi Vegetables Shop
 
 ## Current State
-New project, no existing application files.
+- Admin page at `/admin/orders` requires Internet Identity login + admin role assignment
+- Customer checkout requires Internet Identity login before placing an order
+- Backend enforces `isAdmin` check on `getAllOrders`, `updateOrderStatus`, and `hasPermission(#user)` check on `placeOrder`
+- User cannot use Internet Identity and has not been assigned admin Principal
 
 ## Requested Changes (Diff)
 
 ### Add
-- Shop homepage with name "Thirupathi Vegetables and Fruits Shop"
-- Product listing page showing all vegetables with prices in INR (₹)
-- Shopping cart functionality: add/remove items, adjust quantities
-- Order placement: customer submits name, phone, address and places order
-- Backend stores product catalog and orders
-- Admin can view placed orders
+- Simple username/password login form on the admin page (username: `Hariprasad`, password: `Hariprasad009`)
+- localStorage-based admin session (stays logged in across page reloads)
 
 ### Modify
-- N/A
+- Backend `placeOrder`: Remove `hasPermission(#user)` check so anonymous callers (customers) can place orders without login
+- Backend `getAllOrders`: Remove `isAdmin` check so it is accessible without auth
+- Backend `updateOrderStatus`: Remove `isAdmin` check
+- Frontend `AdminOrdersPage`: Replace Internet Identity login with username/password form
+- Frontend `CheckoutModal`: Remove the Internet Identity gate, show checkout form directly
 
 ### Remove
-- N/A
+- Internet Identity login requirement for customers (checkout)
+- Internet Identity login requirement for admin
+- `isCurrentUserAdmin` backend call dependency from admin page
 
 ## Implementation Plan
-
-### Products (pre-seeded in backend)
-- Tomato ₹25.43, Onion ₹24.24, Potato ₹19.44, Brinjal ₹36.89
-- Ladies Finger (Bhindi) ₹47.00, Green Chilli ₹42.00, Cabbage ₹22.00
-- Carrot ₹26.00, Bitter Gourd (Kakarakaya) ₹44.00, Bottle Gourd (Sorakaya) ₹28.00
-- Capsicum ₹55.00, Ginger ₹24.30, Garlic ₹35.46
-
-### Backend (Motoko)
-- Store product list with name, price, unit (per kg)
-- Store orders with customer details, items, quantities, total, timestamp, status
-- APIs: getProducts, placeOrder, getOrders (admin)
-
-### Frontend (React)
-- Header with shop name and cart icon with item count
-- Product grid cards with name, price, add-to-cart button and quantity controls
-- Cart sidebar/drawer showing items, quantities, total
-- Checkout form: customer name, phone, delivery address
-- Order confirmation message after placing
-- Orders page (admin) to view all placed orders
+1. Modify `src/backend/main.mo` - remove auth checks from `placeOrder`, `getAllOrders`, `updateOrderStatus`
+2. Modify `src/frontend/src/pages/AdminOrdersPage.tsx` - replace II login with a username/password form that checks hardcoded credentials and stores session in localStorage
+3. Modify `src/frontend/src/components/CheckoutModal.tsx` - remove the II login gate, show checkout form immediately

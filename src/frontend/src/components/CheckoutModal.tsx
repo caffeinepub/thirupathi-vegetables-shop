@@ -113,6 +113,7 @@ export function CheckoutModal({
                     </button>
                   </div>
                 ) : (
+                  /* Checkout form */
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="bg-muted rounded-lg p-3 space-y-1">
                       {cartItems.map((item) => (

@@ -13,7 +13,8 @@ import type { Principal } from '@icp-sdk/core/principal';
 export interface CustomerOrder {
   'id' : bigint,
   'customerName' : string,
-  'status' : OrderStatus,
+  'status' : { 'pending' : null } |
+    { 'confirmed' : null },
   'totalAmount' : number,
   'address' : string,
   'timestamp' : Time,
@@ -21,22 +22,35 @@ export interface CustomerOrder {
   'phoneNumber' : string,
 }
 export interface OrderItem { 'productName' : string, 'quantity' : number }
-export type OrderStatus = { 'pending' : null } |
-  { 'confirmed' : null };
 export interface Product { 'name' : string, 'pricePerKg' : number }
 export type Time = bigint;
+export interface UserProfile { 'name' : string }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'getAllOrders' : ActorMethod<[], Array<CustomerOrder>>,
   'getAllOrdersByCustomerName' : ActorMethod<[], Array<CustomerOrder>>,
   'getAllProducts' : ActorMethod<[], Array<Product>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getOrder' : ActorMethod<[bigint], CustomerOrder>,
   'getProduct' : ActorMethod<[string], Product>,
   'getShopName' : ActorMethod<[], string>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'isCurrentUserAdmin' : ActorMethod<[], boolean>,
   'placeOrder' : ActorMethod<
     [string, string, string, Array<OrderItem>],
     bigint
   >,
-  'updateOrderStatus' : ActorMethod<[bigint, OrderStatus], undefined>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'updateOrderStatus' : ActorMethod<
+    [bigint, { 'pending' : null } | { 'confirmed' : null }],
+    undefined
+  >,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

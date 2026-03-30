@@ -8,9 +8,10 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const OrderStatus = IDL.Variant({
-  'pending' : IDL.Null,
-  'confirmed' : IDL.Null,
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
 });
 export const Time = IDL.Int;
 export const OrderItem = IDL.Record({
@@ -20,7 +21,7 @@ export const OrderItem = IDL.Record({
 export const CustomerOrder = IDL.Record({
   'id' : IDL.Nat,
   'customerName' : IDL.Text,
-  'status' : OrderStatus,
+  'status' : IDL.Variant({ 'pending' : IDL.Null, 'confirmed' : IDL.Null }),
   'totalAmount' : IDL.Float64,
   'address' : IDL.Text,
   'timestamp' : Time,
@@ -31,8 +32,11 @@ export const Product = IDL.Record({
   'name' : IDL.Text,
   'pricePerKg' : IDL.Float64,
 });
+export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 
 export const idlService = IDL.Service({
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'getAllOrders' : IDL.Func([], [IDL.Vec(CustomerOrder)], ['query']),
   'getAllOrdersByCustomerName' : IDL.Func(
       [],
@@ -40,23 +44,38 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getAllProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getOrder' : IDL.Func([IDL.Nat], [CustomerOrder], ['query']),
   'getProduct' : IDL.Func([IDL.Text], [Product], ['query']),
   'getShopName' : IDL.Func([], [IDL.Text], ['query']),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'isCurrentUserAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'placeOrder' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Vec(OrderItem)],
       [IDL.Nat],
       [],
     ),
-  'updateOrderStatus' : IDL.Func([IDL.Nat, OrderStatus], [], []),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'updateOrderStatus' : IDL.Func(
+      [IDL.Nat, IDL.Variant({ 'pending' : IDL.Null, 'confirmed' : IDL.Null })],
+      [],
+      [],
+    ),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
-  const OrderStatus = IDL.Variant({
-    'pending' : IDL.Null,
-    'confirmed' : IDL.Null,
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
   });
   const Time = IDL.Int;
   const OrderItem = IDL.Record({
@@ -66,7 +85,7 @@ export const idlFactory = ({ IDL }) => {
   const CustomerOrder = IDL.Record({
     'id' : IDL.Nat,
     'customerName' : IDL.Text,
-    'status' : OrderStatus,
+    'status' : IDL.Variant({ 'pending' : IDL.Null, 'confirmed' : IDL.Null }),
     'totalAmount' : IDL.Float64,
     'address' : IDL.Text,
     'timestamp' : Time,
@@ -74,8 +93,11 @@ export const idlFactory = ({ IDL }) => {
     'phoneNumber' : IDL.Text,
   });
   const Product = IDL.Record({ 'name' : IDL.Text, 'pricePerKg' : IDL.Float64 });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text });
   
   return IDL.Service({
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'getAllOrders' : IDL.Func([], [IDL.Vec(CustomerOrder)], ['query']),
     'getAllOrdersByCustomerName' : IDL.Func(
         [],
@@ -83,15 +105,32 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getAllProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getOrder' : IDL.Func([IDL.Nat], [CustomerOrder], ['query']),
     'getProduct' : IDL.Func([IDL.Text], [Product], ['query']),
     'getShopName' : IDL.Func([], [IDL.Text], ['query']),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'isCurrentUserAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'placeOrder' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Vec(OrderItem)],
         [IDL.Nat],
         [],
       ),
-    'updateOrderStatus' : IDL.Func([IDL.Nat, OrderStatus], [], []),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'updateOrderStatus' : IDL.Func(
+        [
+          IDL.Nat,
+          IDL.Variant({ 'pending' : IDL.Null, 'confirmed' : IDL.Null }),
+        ],
+        [],
+        [],
+      ),
   });
 };
 
