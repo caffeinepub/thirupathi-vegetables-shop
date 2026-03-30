@@ -1,4 +1,4 @@
-import { Clock, ExternalLink, MapPin, Phone } from "lucide-react";
+import { Clock, ExternalLink, Mail, MapPin, Phone } from "lucide-react";
 
 export function ShopFooter() {
   const year = new Date().getFullYear();
@@ -85,6 +85,15 @@ export function ShopFooter() {
                   className="hover:text-white transition-colors"
                 >
                   WhatsApp: 9705719988
+                </a>
+              </li>
+              <li className="flex items-center gap-2 text-sm text-white/70">
+                <Mail className="w-4 h-4 shrink-0 text-white/50" />
+                <a
+                  href="mailto:hariprasadchoppari5@gmail.com"
+                  className="hover:text-white transition-colors"
+                >
+                  hariprasadchoppari5@gmail.com
                 </a>
               </li>
               <li className="flex items-center gap-2 text-sm text-white/70">
